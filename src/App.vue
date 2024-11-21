@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
   <div>
 
-    <header>
+    <header style=";">
       <nav>
         <RouterLink to="/" class="link" active-class="active">Home</RouterLink>
         <RouterLink to="/nolibrary" class="link" active-class="active">No library</RouterLink>
@@ -23,5 +22,17 @@ import HelloWorld from './components/HelloWorld.vue'
 <style scoped>
 .active {
   font-weight: bold;
+}
+
+header {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  top: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 1000;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>

@@ -1,5 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { reactive, ref } from 'vue';
+import { FormKit } from '@formkit/vue';
 
 // Form state
 const formData = reactive({
@@ -25,37 +26,14 @@ const stateOptions = {
 };
 
 // Methods
-const validateField = (field) => {
-	const value = formData[field];
-	if (!value) {
-		errors[field] = `${field} is required.`;
-	} else {
-		delete errors[field];
-	}
+const handleCountryChange = (country: keyof typeof stateOptions) => {
+	console.log(country)
+	states.value = stateOptions[country] || [];
 };
 
-const handleCountryChange = () => {
-	validateField("country");
-	states.value = stateOptions[formData.country] || [];
-	formData.state = ""; // Reset state when country changes
-};
-
-const validateStep = () => {
-	const stepFields = {
-		1: ["name", "email"],
-		2: ["country", "state"],
-	};
-
-	const fieldsToValidate = stepFields[currentStep.value] || [];
-	fieldsToValidate.forEach((field) => validateField(field));
-
-	return fieldsToValidate.every((field) => !errors[field]);
-};
 
 const nextStep = () => {
-	if (validateStep()) {
-		currentStep.value++;
-	}
+	currentStep.value++;
 };
 
 const prevStep = () => {
@@ -77,57 +55,39 @@ const handleSubmit = () => {
 </script>
 <template>
 	<div class="multi-step-form">
-		<h1>Multi-Step Form</h1>
-		<form @submit.prevent="handleSubmit">
+		<h1>Multi-Step Form (FormKit)</h1>
+		<FormKit type="form" @submit="handleSubmit" #default="{ value }">
 			<!-- Step 1: Personal Details -->
 			<template v-if="currentStep === 1" class="form-step">
-				<h2>Step 1: Personal Details</h2>
-				<div class="form-group">
-					<label for="name">Name:</label>
-					<input id="name" type="text" v-model="formData.name" @input="validateField('name')" />
-					<span v-if="errors.name" class="error">{{ errors.name }}</span>
-				</div>
+				<FormKit type="group" id="details" name="details">
 
-				<div class="form-group">
-					<label for="email">Email:</label>
-					<input id="email" type="email" v-model="formData.email" @input="validateField('email')" />
-					<span v-if="errors.email" class="error">{{ errors.email }}</span>
-				</div>
+					<h2>Step 1: Personal Details</h2>
+					<FormKit type="text" name="name" id="name" label="Name" placeholder="“Jon Doe”" validation="required" />
+					<FormKit type="text" name="email" id="email" label="Email" placeholder="jon@doe.com"
+						validation="required | email" />
+				</FormKit>
 			</template>
 
 			<!-- Step 2: Location Details -->
 			<template v-if="currentStep === 2" class="form-step">
-				<h2>Step 2: Location Details</h2>
-				<div class="form-group">
-					<label for="country">Country:</label>
-					<select id="country" v-model="formData.country" @change="handleCountryChange">
-						<option value="" disabled>Select a country</option>
-						<option v-for="country in countries" :key="country" :value="country">
-							{{ country }}
-						</option>
-					</select>
-					<span v-if="errors.country" class="error">{{ errors.country }}</span>
-				</div>
 
-				<div class="form-group" v-if="formData.country">
-					<label for="state">State:</label>
-					<select id="state" v-model="formData.state" @change="validateField('state')">
-						<option value="" disabled>Select a state</option>
-						<option v-for="state in states" :key="state" :value="state">
-							{{ state }}
-						</option>
-					</select>
-					<span v-if="errors.state" class="error">{{ errors.state }}</span>
-				</div>
+				<h2>Step 2: Location Details</h2>
+				<FormKit type="group" id="country" name="country">
+					<FormKit type="select" placeholder="Please select a country" name="country" label="Country"
+						:options="countries" @change="handleCountryChange(value?.country?.country)" />
+					<FormKit type="select" name="state" label="State" :options="states" v-if="value?.country" />
+				</FormKit>
 			</template>
 
 			<!-- Step 3: Confirmation -->
 			<template v-if="currentStep === 3" class="form-step">
+
 				<h2>Step 3: Confirmation</h2>
-				<p><strong>Name:</strong> {{ formData.name }}</p>
-				<p><strong>Email:</strong> {{ formData.email }}</p>
-				<p><strong>Country:</strong> {{ formData.country }}</p>
-				<p><strong>State:</strong> {{ formData.state }}</p>
+				{{ value }}
+				<p><strong>Name:</strong> </p>
+				<p><strong>Email:</strong> </p>
+				<p><strong>Country:</strong> </p>
+				<p><strong>State:</strong> </p>
 				<p>Click submit to finalize your form.</p>
 			</template>
 
@@ -143,7 +103,7 @@ const handleSubmit = () => {
 					Submit
 				</button>
 			</div>
-		</form>
+		</FormKit>
 	</div>
 </template>
 

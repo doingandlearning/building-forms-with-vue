@@ -3,6 +3,5 @@
 
 <template>
   <main class="content">
-    <SimpleForm />
   </main>
 </template>
